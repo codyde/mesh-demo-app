@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontreact
+  namespace: kong
+  labels:
+    app: react
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: react
+  template:
+    metadata:
+      annotations:
+        "prometheus.io/scrape": "true"
+        "prometheus.io/port": "9102"
+        "kuma.io/protocol": "http"
+      labels:
+        app: react
+    spec:
+      containers:
+        - name: frontreact
+          image: codydearkland/demo-react:latest
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontreact
+  namespace: kong
+  annotations:
+    80.service.kuma.io/protocol: "http"
+    ingress.kubernetes.io/service-upstream: "true"
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: react

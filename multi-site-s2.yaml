@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: kong
+  labels:
+    app: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      annotations:
+        "prometheus.io/scrape": "true"
+        "prometheus.io/port": "9102"
+      labels:
+        app: api
+        version: "1"
+    spec:
+      containers:
+        - name: api
+          image: codydearkland/api-tier:v16
+          env:
+            - name: MESH-TYPE
+              value: "kong-mesh" # Update me to your service mesh, 'kong-mesh' or 'kuma' or blank for none
+            - name: MESH-NS
+              value: "kong-mesh-system" # Update me to your Kuma/Kong Mesh NS or leave blank
+            - name: REDIS_HOST
+              value: "redis_kong_svc_6379.mesh"
+            - name: REDIS_PORT
+              value: "80"
+            - name: secret_key
+              value: "hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH"
+            - name: POSTGRES_HOST
+              value: "db_kong_svc_5432.mesh"
+            - name: POSTGRES_USER
+              value: "postgres"
+            - name: POSTGRES_PASSWORD
+              value: "postgres_password"
+            - name: POSTGRES_PORT
+              value: "80"
+            - name: POSTGRES_DATABASE
+              value: "posts"
+            - name: LC_ALL
+              value: "C.UTF-8"
+            - name: LANG
+              value: "C.UTF-8"
+            - name: fernet
+              value: "TqwnupPqap-UCpNCR70KADvdtVnW0fhcFlni8muk9sQ="
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: kong
+spec:
+  selector:
+    app: api
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: kong
+spec:
+  selector:
+    matchLabels:
+      app: db
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: db
+          image: codydearkland/db-tier:latest
+          ports:
+            - containerPort: 5432
+              protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: kong
+spec:
+  selector:
+    app: db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

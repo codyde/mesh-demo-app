@@ -1,0 +1,22 @@
+apiVersion: kuma.io/v1alpha1
+kind: TrafficRoute
+mesh: default
+metadata:
+  name: route-example
+spec:
+  sources:
+    - match:
+        kuma.io/service: frontreact_kong_svc_80
+  destinations:
+    - match:
+        kuma.io/service: api_kong_svc_5000
+  conf:
+    split:
+      - weight: 100
+        destination:
+          kuma.io/service: api_kong_svc_5000
+          version: '1'
+      - weight: 0
+        destination:
+          kuma.io/service: api_kong_svc_5000
+          version: '2'

@@ -1,0 +1,15 @@
+kuma:
+  controlPlane:
+    mode: "remote"
+    zone: "vk8s"
+    kdsGlobalAddress: "grpcs://192.168.1.112:5685" # Set to the internal address of your environment. Change to the external address if accessible.
+    envVars:
+      KUMA_RUNTIME_KUBERNETES_INJECTOR_BUILTIN_DNS_ENABLED: true
+  ingress:
+    enabled: true
+    annotations:
+      kuma.io/ingress-public-address: 67.181.97.173 # In my lab I NAT to an inside address - this needs to be teh external one
+      kuma.io/ingress-public-port: 10001
+    service:
+      type: "LoadBalancer"
+      port: 10001

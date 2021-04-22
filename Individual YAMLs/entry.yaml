@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: front
+  namespace: kong
+spec:
+  type: ExternalName
+  externalName: frontreact.kong.svc.80.mesh
