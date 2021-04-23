@@ -1,5 +1,7 @@
 # Cody's Kong Mesh/Kuma Demo Application
 
+![App Demo](AppDemo.gif)
+
 This application is a 4 tier application consisting of the following components
 
 * ReactJS based frontend service
