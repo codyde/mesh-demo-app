@@ -18,10 +18,11 @@ spec:
         "kuma.io/protocol": "http"
       labels:
         app: react
+        version: "2"
     spec:
       containers:
         - name: frontreact
-          image: codydearkland/demo-react:latest
+          image: codydearkland/demo-react:beta3
           ports:
             - name: web
               containerPort: 80

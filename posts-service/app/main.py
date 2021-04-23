@@ -6,6 +6,7 @@ import psycopg2
 from flask_cors import CORS
 import datetime
 import json
+import redis
 import os
 import requests
 from flask import Flask, jsonify, request
@@ -26,12 +27,15 @@ except:
     pgpass = os.environ.get('POSTGRES_PASSWORD')
     pgport = os.environ.get('POSTGRES_PORT')
     pgdb = os.environ.get('POSTGRES_DATABASE')
-    meshtype = os.environ.get('MESH-TYPE')
-    meshns = os.environ.get('MESH-NS')
-    sec = os.environ.get('fernet')
+    meshtype = os.environ.get('MESH_TYPE')
+    meshns = os.environ.get('MESH_NS')
     SECRET_KEY = os.environ.get('secret_key')
     connstring = f"host={pghost} port={pgport} dbname={pgdb} user={pguser} password={pgpass} sslmode=disable"
-    userstring = f"host={pghost} port={pgport} dbname=users user={pguser} password={pgpass} sslmode=disable"
+
+if meshtype == "kong-mesh":
+    meshapi = f"http://kong-mesh-control-plane.{meshns}:5681/config"
+elif meshtype == "kuma":
+    meshapi = f"http://kuma-control-plane.{meshns}:5681/config"
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
@@ -40,8 +44,6 @@ socketio = SocketIO(app, cors_allowed_origins='*',
 
 CORS(app)
 thread = None
-
-f = Fernet(sec.encode())
 
 
 def make_celery(app):
@@ -94,7 +96,56 @@ def post_data(req):
     return
 
 
-@app.route("/api/posts", methods=["GET", "POST", "DELETE"])
+@app.route("/api/posts/redis", methods=["GET"])
+def get_redis():
+    try:
+        r = redis.Redis(redishost, redisport, socket_connect_timeout=1)
+        a = requests.get(meshapi)
+        data = a.json()
+        r.ping()
+        if data['mode'] == 'remote':
+            location = data['multizone']['remote']['zone']
+        else:
+            location: 'Core'
+        rhealth = {
+            "host": redishost,
+            "health": "up",
+            "location": location
+        }
+        return jsonify(rhealth)
+    except:
+        rhealth = {
+            "host": redishost,
+            "health": "down",
+            "location": "disconnected"
+        }
+        return jsonify(rhealth)
+
+
+@ app.route("/api/posts/db", methods=["GET"])
+def get_api_loc():
+    try:
+        conn = psycopg2.connect(connstring)
+        r = requests.get(meshapi)
+        data = r.json()
+        if data['mode'] == 'remote':
+            location = {
+                'location': data['multizone']['remote']['zone'],
+            }
+        else:
+            location = {
+                'location': 'Core'
+            }
+        return jsonify(location)
+    except:
+        location = {
+            'location': 'Disconnected',
+            'exception': 'API Down'
+        }
+        return jsonify(location)
+
+
+@ app.route("/api/posts", methods=["GET", "POST", "DELETE"])
 def manage_post():
     if request.method == "GET":
         conn = psycopg2.connect(connstring)
@@ -133,38 +184,6 @@ def manage_post():
         return jsonify(response)
 
 
-@app.route("/api/users", methods=["GET", "POST"])
-def manage_users():
-    if request.method == "GET":
-        conn = psycopg2.connect(userstring)
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        data = cur.execute(f'SELECT * FROM userData ORDER BY id DESC')
-        test = cur.fetchall()
-        return jsonify(test)
-    elif request.method == "POST":
-        req = request.get_json()
-        _name = req['user']
-        _role = req['role']
-        _password = req['password'].encode()
-        _encpass = f.encrypt(_password)
-        _encdecode = _encpass.decode()
-        _team = req['team']
-        conn = psycopg2.connect(userstring)
-        cur = conn.cursor(cursor_factory=RealDictCursor)
-        data = cur.execute(
-            'INSERT INTO userData (name, role, password, team) VALUES (%s, %s, %s, %s)', (_name, _role, _encdecode, _team))
-        conn.commit()
-        user = {
-            "name": _name,
-            "role": _role,
-            "team": _team,
-            "pass": _encdecode,
-            "status": "created",
-            "code": 200
-        }
-        return jsonify(user)
-
-
 @ app.route("/api/health", methods=["GET"])
 def get_health():
     if meshtype == "kong-mesh":
@@ -193,49 +212,6 @@ def get_health():
 
     socketio.emit('health event', stats)
     return jsonify(stats)
-
-
-@ app.route("/api/loginEndpoint", methods=["POST"])
-def loginFunction():
-    req = request.get_json()
-    userName = req['username']
-    passWord = req['password']
-    conn = psycopg2.connect(userstring)
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    data = cur.execute(f"SELECT * FROM userData WHERE name='{userName}'")
-    test = cur.fetchall()
-    pwd = test[0]['password']
-    clean = pwd.strip('"')
-    enc_pwd = clean.encode()
-    dec = f.decrypt(enc_pwd)
-    fi = dec.decode()
-    if passWord != fi:
-        msg = {
-            "message": "invalid login"
-        }
-        return jsonify(msg), 403
-    else:
-        timeLimit = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        payload = {"user_id": userName, "exp": timeLimit}
-        token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
-        return_data = {
-            "error": "0",
-            "message": "Successful",
-            "jwtToken": token,
-            "token": jwt.decode(token, SECRET_KEY, algorithms=["HS256"]),
-            "Elapse_time": f"{timeLimit}"
-        }
-        return app.response_class(response=json.dumps(return_data), mimetype='application/json')
-
-
-@app.route('/api/anEndpoint', methods=['POST'])
-@token_required  # Verify token decorator
-def aWebService():
-    return_data = {
-        "error": "0",
-        "message": "You Are verified"
-    }
-    return app.response_class(response=json.dumps(return_data), mimetype='application/json')
 
 
 @ socketio.on('health event')

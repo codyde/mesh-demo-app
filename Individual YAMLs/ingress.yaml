@@ -7,10 +7,21 @@ metadata:
     kubernetes.io/ingress.class: kong
 spec:
   rules:
-  - http:
-      paths:
-      - path: /
-        backend:
-          serviceName: front
-          servicePort: 80
-
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: front
+              servicePort: 80
+    - http:
+        paths:
+          - path: /api/users
+            backend:
+              serviceName: user-service
+              servicePort: 5000
+    - http:
+        paths:
+          - path: /api/loginEndpoint
+            backend:
+              serviceName: user-service
+              servicePort: 5000
