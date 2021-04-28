@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Progress, Card, Container, Grid } from "semantic-ui-react";
 import { useInterval } from "./useInterval";
-import socketIOClient from "socket.io-client";
+// import io from "socket.io-client";
 import Radium, { StyleRoot } from "radium";
 import { slideInLeft, slideInRight, slideInDown } from "react-animations";
 
@@ -20,36 +20,30 @@ export const ProgressExampleIndicating = () => {
       animationName: Radium.keyframes(slideInDown, "slideInDown"),
     },
   };
-  // const ENDPOINT = "http://localhost:5000";
   const ENDPOINT = window.location.protocol + "//" + window.location.host;
-
-  const [response, setResponse] = useState("");
 
   const [postsOn, setpostsOn] = useState("off");
   const [usersOn, setusersOn] = useState("off");
   const [dbOn, setDbOn] = useState("off");
   const [redisOn, setredisOn] = useState("off");
+
   const [redisLoc, setredisLoc] = useState("Disconnected");
   const [dbLoc, setdbLoc] = useState("Disconnected");
   const [userLoc, setuserLoc] = useState("Disconnected");
   const [postLoc, setpostLoc] = useState("Disconnected");
 
-  // useEffect(() => {
-  //   const socket = socketIOClient(ENDPOINT, {
-  //     transports: ["websocket"],
-  //   });
-  //   socket.on("health event", (data) => {
-  //     setResponse(data);
-  //     setApiOn("on");
-  //   });
-  // }, [response, apiOn]);
+  function handleErrors(response) {
+    if (!response.ok) {
+      throw Error(response.statusText);
+    }
+    return response;
+  }
 
   useInterval(() => {
     fetch(ENDPOINT + "/api/users/db")
-      // .then(handleErrors)
+      .then(handleErrors)
       .then((res) => res.json())
       .then((y) => {
-        console.log(y);
         setusersOn("on");
         setdbLoc(y.location);
         setuserLoc(y.location);
@@ -60,11 +54,8 @@ export const ProgressExampleIndicating = () => {
         setdbLoc("Disconnected");
         setuserLoc("Disconnected");
       });
-  }, 2000);
-
-  useInterval(() => {
     fetch(ENDPOINT + "/api/posts/db")
-      // .then(handleErrors)
+      .then(handleErrors)
       .then((res) => res.json())
       .then((y) => {
         setpostsOn("on");
@@ -72,21 +63,20 @@ export const ProgressExampleIndicating = () => {
         setpostLoc(y.location);
       })
       .catch((error) => {
+        console.log(error);
         setpostsOn("off");
         setDbOn("off");
         setpostLoc("Disconnected");
       });
-  }, 2000);
-
-  useInterval(() => {
     fetch(ENDPOINT + "/api/posts/redis")
-      // .then(handleErrors)
+      .then(handleErrors)
       .then((res) => res.json())
       .then((y) => {
         setredisOn("on");
         setredisLoc(y.location);
       })
       .catch((error) => {
+        console.log(error);
         setredisOn("off");
         setredisLoc("Disconnected");
       });

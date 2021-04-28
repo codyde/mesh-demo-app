@@ -40,7 +40,9 @@ elif meshtype == "kuma":
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 socketio = SocketIO(app, cors_allowed_origins='*',
-                    logger=True, engineio_logger=True)
+                    logger=True, engineio_logger=True, pingInterval=10000, pingTimeout=5000)
+
+socketio.init_app(app, cors_allowed_origins="*")
 
 CORS(app)
 thread = None
@@ -106,7 +108,7 @@ def get_redis():
         if data['mode'] == 'remote':
             location = data['multizone']['remote']['zone']
         else:
-            location: 'Core'
+            location = 'Core'
         rhealth = {
             "host": redishost,
             "health": "up",
@@ -119,10 +121,10 @@ def get_redis():
             "health": "down",
             "location": "disconnected"
         }
-        return jsonify(rhealth)
+        return jsonify(rhealth), 500
 
 
-@ app.route("/api/posts/db", methods=["GET"])
+@app.route("/api/posts/db", methods=["GET"])
 def get_api_loc():
     try:
         conn = psycopg2.connect(connstring)
@@ -131,21 +133,25 @@ def get_api_loc():
         if data['mode'] == 'remote':
             location = {
                 'location': data['multizone']['remote']['zone'],
+                'status': 'up'
             }
         else:
             location = {
-                'location': 'Core'
+                'location': 'Core',
+                'status': 'up'
             }
+        socketio.emit('db event', location)
         return jsonify(location)
     except:
         location = {
             'location': 'Disconnected',
-            'exception': 'API Down'
+            'status': 'down'
         }
-        return jsonify(location)
+        socketio.emit('db event', location)
+        return jsonify(location), 500
 
 
-@ app.route("/api/posts", methods=["GET", "POST", "DELETE"])
+@app.route("/api/posts", methods=["GET", "POST", "DELETE"])
 def manage_post():
     if request.method == "GET":
         conn = psycopg2.connect(connstring)
@@ -184,7 +190,7 @@ def manage_post():
         return jsonify(response)
 
 
-@ app.route("/api/health", methods=["GET"])
+@app.route("/api/health", methods=["GET"])
 def get_health():
     if meshtype == "kong-mesh":
         r = requests.get(f"http://kong-mesh-control-plane.{meshns}:5681")
@@ -214,26 +220,31 @@ def get_health():
     return jsonify(stats)
 
 
-@ socketio.on('health event')
+@socketio.on('health event')
 def handle_health(stats):
     print('received')
     return jsonify(stats)
 
 
-@ socketio.on('my event')
+@socketio.on('my event', )
 def handle_event(data):
     print('received')
     return jsonify(data)
 
 
-@ socketio.on('connected')
+@socketio.on('db event')
+def db_status(data):
+    return jsonify(data)
+
+
+@socketio.on('connected')
 def handle_connect():
     while True:
         socketio.sleep(3)
         print('connected')
 
 
-@ app.after_request
+@app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')
     response.headers.add('Access-Control-Allow-Headers',

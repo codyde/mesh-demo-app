@@ -15,14 +15,15 @@ spec:
       annotations:
         "prometheus.io/scrape": "true"
         "prometheus.io/port": "9102"
-        "kuma.io/protocol": "http"
+        "ingress.kubernetes.io/service-upstream": "true"
       labels:
         app: react
         version: "2"
     spec:
       containers:
         - name: frontreact
-          image: codydearkland/demo-react:beta3
+          image: codydearkland/demo-react:v2
+          imagePullPolicy: Always
           ports:
             - name: web
               containerPort: 80
@@ -34,7 +35,6 @@ metadata:
   name: frontreact
   namespace: kong
   annotations:
-    80.service.kuma.io/protocol: "http"
     ingress.kubernetes.io/service-upstream: "true"
 spec:
   ports:

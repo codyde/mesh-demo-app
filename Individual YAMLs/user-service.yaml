@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: codydearkland/user-service:beta2
+          image: codydearkland/user-service:beta3
           env:
             - name: MESH_TYPE
               value: "kong-mesh" # Update me to your service mesh, 'kong-mesh' or 'kuma' or blank for none

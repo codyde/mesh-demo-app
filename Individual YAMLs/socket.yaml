@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: socket
+  namespace: kong
+spec:
+  type: ExternalName
+  externalName: posts-service.kong.svc.5000.mesh
+

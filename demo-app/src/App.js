@@ -209,22 +209,22 @@ function App() {
           </Container>
         </Menu>
         <HomepageHeading />
-        <SocketContext.Provider value={socket}>
-          <ProgressExampleIndicating />
-          <ToastContainer
-            bodyClassName="toastBody"
-            position="top-center"
-            autoClose={5000}
-            hideProgressBar
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-          <Posts />
-        </SocketContext.Provider>
+        {/* <SocketContext.Provider value={socket}> */}
+        <ProgressExampleIndicating />
+        <ToastContainer
+          bodyClassName="toastBody"
+          position="top-center"
+          autoClose={5000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+        />
+        <Posts />
+        {/* </SocketContext.Provider> */}
       </Segment>
     </Responsive>
   );

@@ -1,5 +1,4 @@
 from threading import Thread
-from flask_socketio import SocketIO, emit
 from psycopg2.extras import RealDictCursor
 import psycopg2
 from flask_cors import CORS
@@ -35,8 +34,6 @@ elif meshtype == "kuma":
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('secret_key')
-socketio = SocketIO(app, cors_allowed_origins='*',
-                    logger=True, engineio_logger=True)
 
 CORS(app)
 thread = None
@@ -64,7 +61,7 @@ def get_db_loc():
             'location': 'Disconnected',
             'exception': 'API Down'
         }
-        return jsonify(location)
+        return jsonify(location), 500
 
 
 @app.route("/api/users", methods=["GET", "POST"])
@@ -140,12 +137,6 @@ def aWebService():
         "message": "You Are verified"
     }
     return app.response_class(response=json.dumps(return_data), mimetype='application/json')
-
-
-@ socketio.on('my event')
-def handle_event(data):
-    print('received')
-    return jsonify(data)
 
 
 @ app.after_request

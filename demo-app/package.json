@@ -2,7 +2,7 @@
   "name": "demo-app",
   "version": "0.1.0",
   "private": true,
-  "proxy": "https://a15d90ecf9a39491983805f72a25c436-3d6bcb5a3e734f82.elb.us-west-1.amazonaws.com/",
+  "proxy": "https://a9a40e4653f64488f8826faf37405fdd-69852d88514dba8c.elb.us-west-1.amazonaws.com/",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
@@ -21,8 +21,7 @@
     "react-toastify": "^7.0.3",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.88.2",
-    "socket.io": "^2.4.1",
-    "socket.io-client": "^2.3.1"
+    "socket.io-client": "^2.0.3"
   },
   "scripts": {
     "start": "react-scripts start",
