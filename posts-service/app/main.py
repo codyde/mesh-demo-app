@@ -40,7 +40,8 @@ elif meshtype == "kuma":
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 socketio = SocketIO(app, cors_allowed_origins='*',
-                    logger=True, engineio_logger=True, pingInterval=10000, pingTimeout=5000)
+                    logger=True, engineio_logger=True, pingInterval=10000, pingTimeout=5000,
+                    f'redis://{redishost}:{redisport}')
 
 socketio.init_app(app, cors_allowed_origins="*")
 

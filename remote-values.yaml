@@ -1,8 +1,8 @@
 kuma:
   controlPlane:
     mode: "remote"
-    zone: "vk8s"
-    kdsGlobalAddress: "grpcs://192.168.1.112:5685" # Set to the internal address of your environment. Change to the external address if accessible.
+    zone: "eks"
+    kdsGlobalAddress: "grpcs://67.181.97.173:5685" # Set to the internal address of your environment. Change to the external address if accessible.
     envVars:
       KUMA_RUNTIME_KUBERNETES_INJECTOR_BUILTIN_DNS_ENABLED: true
   ingress:

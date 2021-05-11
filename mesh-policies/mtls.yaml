@@ -15,3 +15,16 @@ spec:
           caCert:
             RSAbits: 2048
             expiration: 10y
+  tracing:
+    defaultBackend: jaeger-collector
+    backends:
+      - name: jaeger-collector
+        type: zipkin
+        sampling: 100.0
+        conf:
+          url: http://jaeger-collector.kuma-tracing:9411/api/v2/spans
+  metrics:
+    enabledBackend: prometheus-1
+    backends:
+      - name: prometheus-1
+        type: prometheus

@@ -1,5 +1,6 @@
 apiVersion: kuma.io/v1alpha1
 kind: TrafficPermission
+mesh: default
 metadata: 
   name: allow-all-default
 spec: 

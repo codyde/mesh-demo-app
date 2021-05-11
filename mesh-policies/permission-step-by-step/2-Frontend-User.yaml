@@ -1,0 +1,13 @@
+apiVersion: kuma.io/v1alpha1
+kind: TrafficPermission
+mesh: default
+metadata:
+  name: frontend-user
+spec:
+  sources:
+    - match:
+        kuma.io/service: 'frontreact_kong_svc_80'
+  destinations:
+    - match:
+        kuma.io/service: 'posts-service_kong_svc_5000'
+

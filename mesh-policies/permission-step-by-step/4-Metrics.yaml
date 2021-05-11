@@ -1,0 +1,25 @@
+apiVersion: kuma.io/v1alpha1
+kind: TrafficPermission
+mesh: default
+metadata:
+  name: grafana-prom
+spec:
+  sources:
+    - match:
+        kuma.io/service: 'grafana_kuma-metrics_svc_80'
+  destinations:
+    - match:
+        kuma.io/service: 'prometheus-server_kuma-metrics_svc_80'
+---
+apiVersion: kuma.io/v1alpha1
+kind: TrafficPermission
+mesh: default
+metadata:
+  name: prom-all
+spec:
+  sources:
+    - match:
+        kuma.io/service: '*'
+  destinations:
+    - match:
+        kuma.io/service: '*'

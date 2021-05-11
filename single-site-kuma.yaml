@@ -14,7 +14,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: user-service
         version: "1"
@@ -80,7 +80,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: posts-service
         version: "1"
@@ -150,7 +150,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: react
     spec:
@@ -230,7 +230,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: redis
     spec:
