@@ -1,10 +1,22 @@
 apiVersion: v1
-kind: Namespace
+kind: ConfigMap
 metadata:
-  name: kong
+  name: demoapp-config
   namespace: kong
-  annotations:
-    kuma.io/sidecar-injection: enabled
+data:
+  MESH_TYPE: kong-mesh
+  MESH_NS: kong-mesh-system
+  REDIS_HOST: redis_kong_svc_6379.mesh
+  REDIS_PORT: "80"
+  secret_key: hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH
+  POSTGRES_HOST: db_kong_svc_5432.mesh
+  POSTGRES_USER: postgres
+  POSTGRES_PASSSWORD: postgres_password
+  POSTGRES_PORT: "80"
+  POSTGRES_DATABASE: posts
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+  fernet: TqwnupPqap-UCpNCR70KADvdtVnW0fhcFlni8muk9sQ=
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -22,7 +34,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: user-service
         version: "1"
@@ -30,29 +42,9 @@ spec:
       containers:
         - name: user-service
           image: codydearkland/user-service:beta3
-          env:
-            - name: MESH_TYPE
-              value: "kong-mesh" # Update me to your service mesh, 'kong-mesh' or 'kuma' or blank for none
-            - name: MESH_NS
-              value: "kong-mesh-system" # Update me to your Kuma/Kong Mesh NS or leave blank
-            - name: secret_key
-              value: "hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH"
-            - name: POSTGRES_HOST
-              value: "db_kong_svc_5432.mesh"
-            - name: POSTGRES_USER
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              value: "postgres_password"
-            - name: POSTGRES_PORT
-              value: "80"
-            - name: POSTGRES_DATABASE
-              value: "posts"
-            - name: LC_ALL
-              value: "C.UTF-8"
-            - name: LANG
-              value: "C.UTF-8"
-            - name: fernet
-              value: "TqwnupPqap-UCpNCR70KADvdtVnW0fhcFlni8muk9sQ="
+          envFrom:
+            - configMapRef:
+                name: demoapp-config
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -62,6 +54,8 @@ kind: Service
 metadata:
   name: user-service
   namespace: kong
+  annotations:
+    "5000.service.kuma.io/protocol": "http"
 spec:
   selector:
     app: user-service
@@ -86,7 +80,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: posts-service
         version: "1"
@@ -94,33 +88,9 @@ spec:
       containers:
         - name: posts-service
           image: codydearkland/posts-service:beta5
-          env:
-            - name: MESH_TYPE
-              value: "kong-mesh" # Update me to your service mesh, 'kong-mesh' or 'kuma' or blank for none
-            - name: MESH_NS
-              value: "kong-mesh-system" # Update me to your Kuma/Kong Mesh NS or leave blank
-            - name: REDIS_HOST
-              value: "redis_kong_svc_6379.mesh"
-            - name: REDIS_PORT
-              value: "80"
-            - name: secret_key
-              value: "hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH"
-            - name: POSTGRES_HOST
-              value: "db_kong_svc_5432.mesh"
-            - name: POSTGRES_USER
-              value: "postgres"
-            - name: POSTGRES_PASSWORD
-              value: "postgres_password"
-            - name: POSTGRES_PORT
-              value: "80"
-            - name: POSTGRES_DATABASE
-              value: "posts"
-            - name: LC_ALL
-              value: "C.UTF-8"
-            - name: LANG
-              value: "C.UTF-8"
-            - name: fernet
-              value: "TqwnupPqap-UCpNCR70KADvdtVnW0fhcFlni8muk9sQ="
+          envFrom:
+            - configMapRef:
+                name: demoapp-config
           imagePullPolicy: Always
           ports:
             - containerPort: 5000
@@ -130,6 +100,8 @@ kind: Service
 metadata:
   name: posts-service
   namespace: kong
+  annotations:
+    "5000.service.kuma.io/protocol": "http"
 spec:
   selector:
     app: posts-service
@@ -153,9 +125,9 @@ spec:
   template:
     metadata:
       annotations:
+        "kuma.io/gateway": enabled
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
-        "kuma.io/protocol": "http"
+        "prometheus.io/port": "5670"
       labels:
         app: react
     spec:
@@ -174,6 +146,7 @@ metadata:
   namespace: kong
   annotations:
     ingress.kubernetes.io/service-upstream: "true"
+    #80.service.kuma.io/protocol: http
 spec:
   ports:
     - name: http
@@ -210,6 +183,8 @@ kind: Service
 metadata:
   name: db
   namespace: kong
+  annotations:
+    "80.service.kuma.io/protocol": "http"
 spec:
   selector:
     app: db
@@ -232,7 +207,7 @@ spec:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
-        "prometheus.io/port": "9102"
+        "prometheus.io/port": "5670"
       labels:
         app: redis
     spec:

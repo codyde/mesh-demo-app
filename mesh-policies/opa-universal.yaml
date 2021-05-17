@@ -1,0 +1,39 @@
+type: OPAPolicy
+mesh: default
+name: opa-1
+selectors:
+- match:
+    kuma.io/service: '*'
+conf:
+  agentConfig: # optional
+    inlineString: | # one of: inlineString, secret
+      decision_logs:
+        console: true
+  policies: # optional
+    - inlineString: |
+            package envoy.authz
+          import input.attributes.request.http as http_request
+          default allow = false
+          token = {"valid": valid, "payload": payload} {
+              [_, encoded] := split(http_request.headers.authorization, " ")
+              [valid, _, payload] := io.jwt.decode_verify(encoded, {"secret": "hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH"})
+          }
+
+          #          allow {
+          # http_request.method == "POST"
+          # input.attributes.request.http.path = "/api/loginEndpoint"
+          #}
+
+          #allow {
+          # http_request.method == "POST"
+          # token.payload.user_id == "cody"
+          #}
+
+          #allow {
+          #  http_request.method == "DELETE"
+          #  token.payload.user_id == "cody"
+          #}
+
+          allow {
+            http_request.method == "GET"
+          }

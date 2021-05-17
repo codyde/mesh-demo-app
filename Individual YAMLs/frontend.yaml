@@ -1,15 +1,15 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontreact
+  name: frontend
   namespace: kong
   labels:
-    app: react
+    app: frontend
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: react
+      app: frontend
   template:
     metadata:
       annotations:
@@ -17,8 +17,7 @@ spec:
         "prometheus.io/port": "9102"
         "ingress.kubernetes.io/service-upstream": "true"
       labels:
-        app: react
-        version: "2"
+        app: frontend
     spec:
       containers:
         - name: frontreact
@@ -32,7 +31,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontreact
+  name: frontend
   namespace: kong
   annotations:
     ingress.kubernetes.io/service-upstream: "true"
@@ -43,4 +42,4 @@ spec:
       targetPort: 80
       protocol: TCP
   selector:
-    app: react
+    app: frontend

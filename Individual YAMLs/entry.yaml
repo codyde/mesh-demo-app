@@ -5,4 +5,4 @@ metadata:
   namespace: kong
 spec:
   type: ExternalName
-  externalName: frontreact.kong.svc.80.mesh
+  externalName: frontend.kong.svc.80.mesh

@@ -40,8 +40,7 @@ elif meshtype == "kuma":
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
 socketio = SocketIO(app, cors_allowed_origins='*',
-                    logger=True, engineio_logger=True, pingInterval=10000, pingTimeout=5000,
-                    f'redis://{redishost}:{redisport}')
+                    logger=True, engineio_logger=True, pingInterval=10000, pingTimeout=5000)
 
 socketio.init_app(app, cors_allowed_origins="*")
 
@@ -197,7 +196,7 @@ def get_health():
         r = requests.get(f"http://kong-mesh-control-plane.{meshns}:5681")
         data = r.json()
         stats = {
-            'version': '15',
+            'version': '16',
             'api-status': 'healthy',
             'product': data['tagline'],
             'mesh-version': data['version']
@@ -206,14 +205,14 @@ def get_health():
         r = requests.get(f"http://kuma-control-plane.{meshns}:5681")
         data = r.json()
         stats = {
-            'version': '15',
+            'version': '16',
             'api-status': 'healthy',
             'product': data['tagline'],
             'mesh-version': data['version']
         }
     else:
         {
-            'version': '15',
+            'version': '16',
             'api-status': 'healthy',
         }
 

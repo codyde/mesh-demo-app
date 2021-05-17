@@ -22,44 +22,21 @@ spec:
               [valid, _, payload] := io.jwt.decode_verify(encoded, {"secret": "hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH"})
           }
           
+          #          allow {
+          # http_request.method == "POST"
+          # input.attributes.request.http.path = "/api/loginEndpoint"
+          #}
+
+          #allow { 
+          # http_request.method == "POST"
+          # token.payload.user_id == "cody"
+          #}
+
+          #allow {
+          #  http_request.method == "DELETE"
+          #  token.payload.user_id == "cody"
+          #}
+          
           allow {
-            action_allowed
-          }
-
-          allow { 
-            post_allowed
-          }
-
-          allow {
-            login_allowed
-          }
-
-          allow {
-            delete_posts
-          }
-
-          login_allowed {
-            http_request.method == "POST"
-            input.attributes.request.http.path = "/api/loginEndpoint"
-          }
-
-          action_allowed {
             http_request.method == "GET"
           }
-
-          post_allowed {
-            http_request.method == "POST" 
-            token.payload.user_id == "cody"
-          }
-
-          delete_posts {
-            http_request.method == "DELETE"
-            token.payload.user_id == "cody"
-          }
-
-
-
-
-
-          
-

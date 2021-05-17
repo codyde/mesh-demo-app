@@ -8,8 +8,8 @@ kuma:
   ingress:
     enabled: true
     annotations:
-      kuma.io/ingress-public-address: 67.181.97.173 # In my lab I NAT to an inside address - this needs to be teh external one
-      kuma.io/ingress-public-port: 10001
+            #kuma.io/ingress-public-address: 67.181.97.173 # In my lab I NAT to an inside address - this needs to be teh external one
+            #kuma.io/ingress-public-port: 10001
     service:
       type: "LoadBalancer"
       port: 10001

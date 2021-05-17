@@ -9,14 +9,14 @@ spec:
         kuma.io/service: frontreact_kong_svc_80
   destinations:
     - match:
-        kuma.io/service: api_kong_svc_5000
+        kuma.io/service: posts-service_kong_svc_5000
   conf:
     split:
-      - weight: 100
+      - weight: 41
         destination:
-          kuma.io/service: api_kong_svc_5000
+          kuma.io/service: posts-service_kong_svc_5000
           version: '1'
-      - weight: 0
+      - weight: 59
         destination:
-          kuma.io/service: api_kong_svc_5000
+          kuma.io/service: posts-service_kong_svc_5000
           version: '2'

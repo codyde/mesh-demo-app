@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demoapp-config
+  namespace: kong
+data:
+  MESH_TYPE: kong-mesh
+  MESH_NS: kong-mesh-system
+  REDIS_HOST: redis_kong_svc_6379.mesh
+  REDIS_PORT: "80"
+  secret_key: hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH
+  POSTGRES_HOST: db_kong_svc_5432.mesh
+  POSTGRES_USER: postgres
+  POSTGRES_PASSSWORD: postgres_password
+  POSTGRES_PORT: "80"
+  POSTGRES_DATABASE: posts
+  LC_ALL: C.UTF-8
+  LANG: C.UTF-8
+  fernet: TqwnupPqap-UCpNCR70KADvdtVnW0fhcFlni8muk9sQ=
