@@ -4,8 +4,8 @@ metadata:
   name: demoapp-config
   namespace: kong
 data:
-  MESH_TYPE: kong-mesh
-  MESH_NS: kong-mesh-system
+  MESH_TYPE: kong-mesh  # set to kuma or kong-mesh
+  MESH_NS: kong-mesh-system # set to the desired namespace for the mesh control plane. Defaults to kuma-system or kong-mesh-system
   REDIS_HOST: redis_kong_svc_6379.mesh
   REDIS_PORT: "80"
   secret_key: hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH
