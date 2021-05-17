@@ -119,9 +119,9 @@ function App() {
     <Responsive>
       <style>
         {`
-      html, body {
-        background-color: #252839 !important;
-      }
+      // html, body {
+      //   background-color: #252839 !important;
+      // }
       p {
         align-content: center;
         background-color: #495285;
@@ -143,7 +143,7 @@ function App() {
         style={{ minHeight: 700, padding: "1em 0em" }}
         vertical
       >
-        <Menu inverted borderless pointing secondary size="large">
+        <Menu pointing secondary size="large">
           <Container>
             <Menu.Item as="a" active>
               Home
@@ -223,7 +223,8 @@ function App() {
           draggable
           pauseOnHover
         />
-        <Posts />
+        {showLogin ? "" : <Posts />}
+        {/* <Posts /> */}
         {/* </SocketContext.Provider> */}
       </Segment>
     </Responsive>

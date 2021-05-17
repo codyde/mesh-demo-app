@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-dark
+  namespace: kong
+  labels:
+    app: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      annotations:
+        "prometheus.io/scrape": "true"
+        "prometheus.io/port": "5670"
+      labels:
+        app: frontend
+        color: dark
+    spec:
+      containers:
+        - name: frontend-dark
+          image: codydearkland/demo-react:v2
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP

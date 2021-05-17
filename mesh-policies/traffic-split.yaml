@@ -6,17 +6,17 @@ metadata:
 spec:
   sources:
     - match:
-        kuma.io/service: frontreact_kong_svc_80
+        kuma.io/service: '*'
   destinations:
     - match:
-        kuma.io/service: posts-service_kong_svc_5000
+        kuma.io/service: frontreact_kong_svc_80
   conf:
     split:
-      - weight: 41
+      - weight: 100
         destination:
-          kuma.io/service: posts-service_kong_svc_5000
-          version: '1'
-      - weight: 59
+          kuma.io/service: frontreact_kong_svc_80
+          color: light
+      - weight: 0
         destination:
-          kuma.io/service: posts-service_kong_svc_5000
-          version: '2'
+          kuma.io/service: frontreact_kong_svc_80
+          color: dark
