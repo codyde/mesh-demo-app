@@ -1,14 +1,22 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: kong
+  namespace: kong
+  annotations: 
+    kuma.io/sidecar-injection: enabled
+---
+apiVersion: v1
 kind: ConfigMap
 metadata:
   name: demoapp-config
   namespace: kong
 data:
-  MESH_TYPE: kuma # set to kuma or kong-mesh
-  MESH_NS: kuma-system # set to the desired namespace for the mesh control plane. Defaults to kuma-system or kong-mesh-system
-  REDIS_HOST: redis_kong_svc_6379.mesh # when using .mesh ensure that you have installed DNS `kumactl install dns | kubectl apply -f -`
+  MESH_TYPE: kong-mesh # set to kuma or kong-mesh
+  MESH_NS: kong-mesh-system # set to the desired namespace for the mesh control plane. Defaults to kuma-system or kong-mesh-system
+  REDIS_HOST: redis_kong_svc_6379.mesh 
   REDIS_PORT: "80"
-  POSTGRES_HOST: db_kong_svc_5432.mesh # when using .mesh ensure that you have installed DNS `kumactl install dns | kubectl apply -f -`
+  POSTGRES_HOST: db_kong_svc_5432.mesh
   POSTGRES_USER: postgres
   POSTGRES_PASSSWORD: postgres_password
   POSTGRES_PORT: "80"
@@ -17,14 +25,6 @@ data:
   secret_key: hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH
   LC_ALL: C.UTF-8
   LANG: C.UTF-8
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: kong
-  namespace: kong
-  annotations:
-    kuma.io/sidecar-injection: enabled
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -50,6 +50,7 @@ spec:
       containers:
         - name: frontend
           image: codydearkland/demo-react:v1
+          imagePullPolicy: Always
           ports:
             - name: web
               containerPort: 80
@@ -62,7 +63,8 @@ metadata:
   namespace: kong
   annotations:
     ingress.kubernetes.io/service-upstream: "true"
-    #80.service.kuma.io/protocol: http
+    80.service.kuma.io/protocol: http
+    kuma.io/service: "pants"
 spec:
   ports:
     - name: http
@@ -96,7 +98,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: codydearkland/user-service:beta3
+          image: codydearkland/user-service:v2
           envFrom:
             - configMapRef:
                 name: demoapp-config
@@ -143,7 +145,7 @@ spec:
     spec:
       containers:
         - name: posts-service
-          image: codydearkland/posts-service:beta5
+          image: codydearkland/posts-service:v2
           envFrom:
             - configMapRef:
                 name: demoapp-config
@@ -194,8 +196,6 @@ kind: Service
 metadata:
   name: db
   namespace: kong
-  annotations:
-    "80.service.kuma.io/protocol": "http"
 spec:
   selector:
     app: db

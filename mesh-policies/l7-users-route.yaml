@@ -1,0 +1,42 @@
+apiVersion: kuma.io/v1alpha1
+kind: TrafficRoute
+mesh: default
+metadata:
+  name: http-users-route
+spec:
+  sources:
+    - match:
+        kuma.io/service: 'kong-proxy_kuma-gateway_svc_80'
+  destinations:
+    - match:
+        kuma.io/service: '*'
+  conf:
+    http:
+    - match:
+        headers: 
+          app-mode:
+            exact: dark
+      destination: 
+        kuma.io/service: frontend-dark_kong_svc_80
+    - match:
+        path:
+          prefix: "/api/posts"
+      destination:
+        kuma.io/service: posts-service_kong_svc_5000
+    - match:
+        path:
+          prefix: "/api/users"
+      destination:
+        kuma.io/service: user-service_kong_svc_5000
+    - match:
+        path: 
+          prefix: "/api/loginEndpoint"
+      destination:
+        kuma.io/service: user-service_kong_svc_5000
+    - match:
+        path:
+          prefix: "/socket.io"
+      destination:
+        kuma.io/service: posts-service_kong_svc_5000
+    destination:
+      kuma.io/service: '*'

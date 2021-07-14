@@ -2,13 +2,11 @@ apiVersion: kuma.io/v1alpha1
 kind: TrafficPermission
 mesh: default
 metadata: 
-  name: gateway-frontend
+  name: posts-redis
 spec: 
   sources: 
     - match: 
-        kuma.io/service: 'kong-proxy_kuma-gateway_svc_80'
-    - match:
-        group: demoapp
+        kuma.io/service: 'posts-service_kong_svc_5000'
   destinations: 
     - match: 
-        group: demoapp
+        kuma.io/service: 'redis_kong_svc_6379'

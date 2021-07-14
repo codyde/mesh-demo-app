@@ -1,0 +1,21 @@
+apiVersion: kuma.io/v1alpha1
+kind: TrafficRoute
+mesh: default
+metadata:
+  name: http-posts-route
+spec:
+  sources:
+    - match:
+        kuma.io/service: 'kong-proxy_kong_svc_80'
+  destinations:
+    - match:
+        kuma.io/service: '*'
+  conf:
+    http:
+    - match:
+        path:
+          prefix: "/api/posts"
+      destination:
+        kuma.io/service: posts-service_kong_svc_5000
+    destination:
+      kuma.io/service: '*'

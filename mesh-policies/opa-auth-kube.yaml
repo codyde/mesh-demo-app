@@ -5,8 +5,8 @@ metadata:
   name: opa-1
 spec:
   selectors:
-  - match:
-      kuma.io/service: '*'
+    - match:
+        kuma.io/service: "*"
   conf:
     agentConfig: # optional
       inlineString: | # one of: inlineString, secret
@@ -21,22 +21,27 @@ spec:
               [_, encoded] := split(http_request.headers.authorization, " ")
               [valid, _, payload] := io.jwt.decode_verify(encoded, {"secret": "hkBxrbZ9Td4QEwgRewV6gZSVH4q78vBia4GBYuqd09SsiMsIjH"})
           }
-          
-          #          allow {
-          # http_request.method == "POST"
-          # input.attributes.request.http.path = "/api/loginEndpoint"
-          #}
 
-          #allow { 
-          # http_request.method == "POST"
-          # token.payload.user_id == "cody"
-          #}
+          allow {
+            http_request.method == "POST"
+            input.attributes.request.http.path = "/api/loginEndpoint"
+          }
 
-          #allow {
-          #  http_request.method == "DELETE"
-          #  token.payload.user_id == "cody"
-          #}
-          
+          allow {
+            http_request.method == "POST"
+            input.attributes.request.http.path = "/api/users"
+          }
+
+          allow { 
+           http_request.method == "POST"
+           token.payload.user_id == "cody"
+          }
+
+          allow {
+            http_request.method == "DELETE"
+            token.payload.user_id == "cody"
+          }
+
           allow {
             http_request.method == "GET"
           }

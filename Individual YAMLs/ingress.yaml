@@ -10,6 +10,6 @@ spec:
     - http:
         paths:
           - path: /
-            backend:
+            backend: 
               serviceName: front
               servicePort: 80

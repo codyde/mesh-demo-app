@@ -1,0 +1,12 @@
+controlPlane:
+  mode: "zone"
+  zone: "vk8s"
+  kdsGlobalAddress: "grpcs://192.168.1.112:5685"
+ingress:
+  enabled: true
+  annotations:
+    kuma.io/ingress-public-address: 24.23.28.185
+    kuma.io/ingress-public-port: 10001
+  service:
+    type: "LoadBalancer"
+    port: 10001

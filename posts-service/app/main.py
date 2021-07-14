@@ -13,7 +13,6 @@ from flask import Flask, jsonify, request
 import eventlet
 import jwt
 from cryptography.fernet import Fernet
-from authenticate import token_required
 eventlet.monkey_patch()
 
 try:
@@ -39,6 +38,7 @@ elif meshtype == "kuma":
 
 app = Flask(__name__)
 app.secret_key = SECRET_KEY
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 socketio = SocketIO(app, cors_allowed_origins='*',
                     logger=True, engineio_logger=True, pingInterval=10000, pingTimeout=5000)
 
@@ -98,6 +98,47 @@ def post_data(req):
     return
 
 
+@app.route("/api/posts/envoy/config_dump", methods=["GET"])
+def get_envoy_config():
+    try:
+        a = requests.get('http://localhost:9901/config_dump')
+        r = a.json()
+    except:
+        a = {
+            "error": "Envoy is unreachable"
+        }
+        r = jsonify(a)
+    return r
+
+
+@app.route("/api/posts/envoy/clusters", methods=["GET"])
+def get_envoy_clusters():
+    try:
+        a = requests.get(
+            'http://localhost:9901/clusters').text
+        text = a.split('\n')
+        r = jsonify(text)
+    except:
+        a = {
+            "error": "Envoy is unreachable"
+        }
+        r = jsonify(a)
+    return r
+
+
+@app.route("/api/posts/envoy/certs", methods=["GET"])
+def get_envoy_certs():
+    try:
+        r = jsonify(requests.get(
+            'http://localhost:9901/certs').json())
+    except:
+        a = {
+            "error": "Envoy is unreachable"
+        }
+        r = jsonify(a)
+    return r
+
+
 @app.route("/api/posts/redis", methods=["GET"])
 def get_redis():
     try:
@@ -130,9 +171,9 @@ def get_api_loc():
         conn = psycopg2.connect(connstring)
         r = requests.get(meshapi)
         data = r.json()
-        if data['mode'] == 'remote':
+        if data['mode'] == 'zone':
             location = {
-                'location': data['multizone']['remote']['zone'],
+                'location': data['multizone']['zone']['name'],
                 'status': 'up'
             }
         else:

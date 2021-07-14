@@ -2,7 +2,6 @@ import React, { useState, useEffect, useContext, useCallback } from "react";
 import { Card, Message, Grid, Segment, Form, Button } from "semantic-ui-react";
 import { useFetch } from "./useFetch";
 import { SocketContext } from "../context/socket";
-import io from "socket.io-client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -13,6 +12,7 @@ export const Posts = () => {
   const ENDPOINT = window.location.protocol + "//" + window.location.host;
   const [block, setBlock] = useState([]);
   const [auth, setAuth] = useState("");
+  const socket = useContext(SocketContext);
 
   const err = () =>
     toast.error("Submission Error", {
@@ -100,13 +100,12 @@ export const Posts = () => {
   }, []);
 
   useEffect(() => {
-    // const socket = useContext(SocketContext);
-    const socket = io(ENDPOINT);
+    // const socket = io(ENDPOINT);
     socket.on("my event", (data) => {
       console.log("socket change");
       setBlock(data);
     });
-  }, [setBlock.length]);
+  }, [socket, setBlock.length]);
 
   const data = useFetch();
 

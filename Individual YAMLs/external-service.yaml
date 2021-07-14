@@ -1,0 +1,12 @@
+apiVersion: kuma.io/v1alpha1
+kind: ExternalService
+mesh: default
+metadata: 
+  name: time
+spec: 
+  networking: 
+    address: '2wtyubu9i2.execute-api.us-east-1.amazonaws.com:443'
+    tls: 
+      enabled: false
+  tags: 
+    kuma.io/service: timecheck

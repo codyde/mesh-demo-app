@@ -2,13 +2,11 @@ apiVersion: kuma.io/v1alpha1
 kind: TrafficPermission
 mesh: default
 metadata: 
-  name: gateway-frontend
+  name: allow-demoapp
 spec: 
   sources: 
     - match: 
-        kuma.io/service: 'kong-proxy_kuma-gateway_svc_80'
-    - match:
-        group: demoapp
+        group: 'demoapp'
   destinations: 
     - match: 
-        group: demoapp
+        group: 'demoapp'

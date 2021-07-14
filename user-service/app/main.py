@@ -10,7 +10,7 @@ from flask import Flask, jsonify, request
 import eventlet
 import jwt
 from cryptography.fernet import Fernet
-from authenticate import token_required
+#from authenticate import token_required
 eventlet.monkey_patch()
 
 try:
@@ -34,11 +34,53 @@ elif meshtype == "kuma":
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('secret_key')
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = True
 
 CORS(app)
 thread = None
 
 f = Fernet(sec.encode())
+
+
+@app.route("/api/users/envoy/config_dump", methods=["GET"])
+def get_envoy_config():
+    try:
+        a = requests.get('http://localhost:9901/config_dump')
+        r = a.json()
+    except:
+        a = {
+            "error": "Envoy is unreachable"
+        }
+        r = jsonify(a)
+    return r
+
+
+@app.route("/api/users/envoy/clusters", methods=["GET"])
+def get_envoy_clusters():
+    try:
+        a = requests.get(
+            'http://localhost:9901/clusters').text
+        text = a.split('\n')
+        r = jsonify(text)
+    except:
+        a = {
+            "error": "Envoy is unreachable"
+        }
+        r = jsonify(a)
+    return r
+
+
+@app.route("/api/users/envoy/certs", methods=["GET"])
+def get_envoy_certs():
+    try:
+        r = jsonify(requests.get(
+            'http://localhost:9901/certs').json())
+    except:
+        a = {
+            "error": "Envoy is unreachable"
+        }
+        r = jsonify(a)
+    return r
 
 
 @app.route("/api/users/db", methods=["GET"])
@@ -47,9 +89,9 @@ def get_db_loc():
         conn = psycopg2.connect(userstring)
         r = requests.get(meshapi)
         data = r.json()
-        if data['mode'] == 'remote':
+        if data['mode'] == 'zone':
             location = {
-                'location': data['multizone']['remote']['zone'],
+                'location': data['multizone']['zone']['name'],
             }
         else:
             location = {
@@ -106,6 +148,7 @@ def loginFunction():
     data = cur.execute(f"SELECT * FROM userData WHERE name='{userName}'")
     test = cur.fetchall()
     pwd = test[0]['password']
+    team = test[0]['team']
     clean = pwd.strip('"')
     enc_pwd = clean.encode()
     dec = f.decrypt(enc_pwd)
@@ -117,7 +160,7 @@ def loginFunction():
         return jsonify(msg), 403
     else:
         timeLimit = datetime.datetime.utcnow() + datetime.timedelta(minutes=30)
-        payload = {"user_id": userName, "exp": timeLimit}
+        payload = {"user_id": userName, "team": team, "exp": timeLimit}
         token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
         return_data = {
             "error": "0",
@@ -129,14 +172,14 @@ def loginFunction():
         return app.response_class(response=json.dumps(return_data), mimetype='application/json')
 
 
-@app.route('/api/anEndpoint', methods=['POST'])
-@token_required  # Verify token decorator
-def aWebService():
-    return_data = {
-        "error": "0",
-        "message": "You Are verified"
-    }
-    return app.response_class(response=json.dumps(return_data), mimetype='application/json')
+# @app.route('/api/anEndpoint', methods=['POST'])
+# @token_required  # Verify token decorator
+# def aWebService():
+#     return_data = {
+#         "error": "0",
+#         "message": "You Are verified"
+#     }
+#     return app.response_class(response=json.dumps(return_data), mimetype='application/json')
 
 
 @ app.after_request

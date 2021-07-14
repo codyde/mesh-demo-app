@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: posts-service
-          image: codydearkland/posts-service:beta5
+          image: codydearkland/posts-service:v2
           envFrom:
             - configMapRef:
                 name: demoapp-config

@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: codydearkland/user-service:beta3
+          image: codydearkland/user-service:v2
           envFrom:
             - configMapRef:
                 name: demoapp-config

@@ -16,8 +16,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SocketContext, socket } from "./context/socket";
 import axios from "axios";
+// import { withLDConsumer, useFlags } from "launchdarkly-react-client-sdk";
 
-function App() {
+// function App({ flags, ldClient }) {
+function App({ flags, ldClient }) {
+  // const { name } = useFlags();
+  // console.log(name);
   axios.interceptors.request.use(
     async (request) => {
       if (request.url.includes("/api/posts")) {
@@ -32,7 +36,6 @@ function App() {
   const [open, setOpen] = React.useState(false);
 
   const ENDPOINT = window.location.protocol + "//" + window.location.host;
-  // const ENDPOINT = "http://localhost:5000";
 
   const [showLogin, setShowLogin] = useState(true);
 
@@ -143,92 +146,95 @@ function App() {
         style={{ minHeight: 700, padding: "1em 0em" }}
         vertical
       >
-        <Menu pointing secondary size="large">
-          <Container>
-            <Menu.Item as="a" active>
-              Home
-            </Menu.Item>
-            <Menu.Item position="right">
-              <Modal
-                onClose={() => setOpen(false)}
-                onOpen={() => setOpen(true)}
-                open={open}
-                trigger={
-                  <Button color={showLogin ? "blue" : "red"}>
-                    {showLogin ? "Login" : " Logout"}
-                  </Button>
-                }
-              >
-                {showLogin ? (
-                  <Form size="large">
-                    <Segment stacked>
-                      <Form.Input
-                        fluid
-                        icon="user"
-                        id="username"
-                        iconPosition="left"
-                        placeholder="Username"
-                        value={state.username}
-                        onChange={handleChange}
-                      />
-                      <Form.Input
-                        fluid
-                        icon="lock"
-                        id="password"
-                        iconPosition="left"
-                        placeholder="Password"
-                        type="password"
-                        value={state.password}
-                        onChange={handleChange}
-                      />
+        <SocketContext.Provider value={socket}>
+          <Menu pointing secondary size="large">
+            <Container>
+              <Menu.Item as="a" active>
+                Home
+              </Menu.Item>
+              <Menu.Item position="right">
+                <Modal
+                  onClose={() => setOpen(false)}
+                  onOpen={() => setOpen(true)}
+                  open={open}
+                  trigger={
+                    <Button color={showLogin ? "blue" : "red"}>
+                      {showLogin ? "Login" : " Logout"}
+                    </Button>
+                  }
+                >
+                  {showLogin ? (
+                    <Form size="large">
+                      <Segment stacked>
+                        <Form.Input
+                          fluid
+                          icon="user"
+                          id="username"
+                          iconPosition="left"
+                          placeholder="Username"
+                          value={state.username}
+                          onChange={handleChange}
+                        />
+                        <Form.Input
+                          fluid
+                          icon="lock"
+                          id="password"
+                          iconPosition="left"
+                          placeholder="Password"
+                          type="password"
+                          value={state.password}
+                          onChange={handleChange}
+                        />
 
-                      <Button
-                        type="submit"
-                        color="blue"
-                        fluid
-                        size="large"
-                        onClick={submitLogin.bind(state)}
-                      >
-                        Login
-                      </Button>
-                    </Segment>
-                  </Form>
-                ) : (
-                  <Button
-                    type="submit"
-                    color="red"
-                    fluid
-                    size="large"
-                    onClick={submitLogout.bind()}
-                  >
-                    Logout
-                  </Button>
-                )}
-              </Modal>
-            </Menu.Item>
-          </Container>
-        </Menu>
-        <HomepageHeading />
-        {/* <SocketContext.Provider value={socket}> */}
-        <ProgressExampleIndicating />
-        <ToastContainer
-          bodyClassName="toastBody"
-          position="top-center"
-          autoClose={5000}
-          hideProgressBar
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-        />
-        {showLogin ? "" : <Posts />}
-        {/* <Posts /> */}
-        {/* </SocketContext.Provider> */}
+                        <Button
+                          type="submit"
+                          color="blue"
+                          fluid
+                          size="large"
+                          onClick={submitLogin.bind(state)}
+                        >
+                          Login
+                        </Button>
+                      </Segment>
+                    </Form>
+                  ) : (
+                    <Button
+                      type="submit"
+                      color="red"
+                      fluid
+                      size="large"
+                      onClick={submitLogout.bind()}
+                    >
+                      Logout
+                    </Button>
+                  )}
+                </Modal>
+              </Menu.Item>
+              {/* {name ? (
+            ) : null} */}
+            </Container>
+          </Menu>
+          <HomepageHeading />
+          <ProgressExampleIndicating />
+          <ToastContainer
+            bodyClassName="toastBody"
+            position="top-center"
+            autoClose={5000}
+            hideProgressBar
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
+          {showLogin ? "" : <Posts />}
+          {/* <Posts /> */}
+        </SocketContext.Provider>
       </Segment>
     </Responsive>
   );
 }
 
+// export default withLDConsumer()(App);
 export default App;

@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello
+  namespace: kong
+spec:
+  type: ExternalName
+  externalName: hello-kubernetes-hello-kubernetes.kong.svc.80.mesh

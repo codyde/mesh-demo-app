@@ -1,22 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-dark
+  namespace: kong
+  annotations:
+    ingress.kubernetes.io/service-upstream: "true"
+    80.service.kuma.io/protocol: http
+spec:
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP
+  selector:
+    app: frontend-dark
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-dark
   namespace: kong
   labels:
-    app: frontend
+    app: frontend-dark
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: frontend
+      app: frontend-dark
   template:
     metadata:
       annotations:
         "prometheus.io/scrape": "true"
         "prometheus.io/port": "5670"
       labels:
-        app: frontend
+        app: frontend-dark
         color: dark
     spec:
       containers:

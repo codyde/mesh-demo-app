@@ -3,12 +3,12 @@ datetime
 flask
 psycopg2
 flask_cors
-flask-socketio 
+# flask-socketio 
 # Flask-SocketIO==4.3.1
 # python-engineio==3.13.2
 # python-socketio==4.6.0
-eventlet
 uwsgi
+gunicorn==20.1.0 
+eventlet==0.30.2
 gevent
-gunicorn
 pyJWT
